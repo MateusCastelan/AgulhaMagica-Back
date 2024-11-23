@@ -4,14 +4,17 @@ const mongoose = require('mongoose');
 
 const articlesSchema = new mongoose.Schema({
   article_title: { type: String },
+  article_materials: { type: String },
   article_body: { type: String },
+  article_img: { type: String },
   article_keywords: { type: String },
   article_liked_count: { type: Number, default: 0 },
-  article_featured: { type: Boolean },
   article_summary: { type: String },
   article_author_email: { type: String },
   article_author_name: { type: String },
+  article_real_author_name: { type: String },
   article_author_id: { type: String },
+  article_fonte: { type: String },
   article_published_date: { type: Date, default: Date.now }
 });
 
