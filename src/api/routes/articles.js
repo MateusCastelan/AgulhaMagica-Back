@@ -15,7 +15,9 @@ const articlesSchema = new mongoose.Schema({
   article_real_author_name: { type: String },
   article_author_id: { type: String },
   article_fonte: { type: String },
-  article_published_date: { type: Date, default: Date.now }
+  article_published_date: { type: Date, default: Date.now },
+  article_difficulty: { type: String, required: true },
+  article_type: { type: String, required: true }
 });
 
 articlesSchema.index({ article_keywords: 'text' })
@@ -24,6 +26,12 @@ const Article = mongoose.model('Article', articlesSchema);
 
 router.post('/cadastro', async (req, res) => {
   const article = req.body;
+  if (article.article_difficulty) {
+    article.article_difficulty = article.article_difficulty.charAt(0).toUpperCase() + article.article_difficulty.slice(1).toLowerCase();
+  }
+  if (article.article_type) {
+    article.article_type = article.article_type.charAt(0).toUpperCase() + article.article_type.slice(1).toLowerCase();
+  }
   try {
     const newArticle = await Article.create(article);
     console.log('Objeto salvo com sucesso!');
@@ -36,17 +44,27 @@ router.post('/cadastro', async (req, res) => {
 
 router.get('/search', async (req, res) => {
   try {
-    const keywords = req.query.keywords;
+    const { keywords, difficulty, type } = req.query;
+    const filters = {};
 
-    const foundArticles = await Article.find({
-      $text: { $search: keywords },
-    });
+    if (keywords) {
+      filters.$text = { $search: keywords };
+    }
+    if (difficulty) {
+      filters.article_difficulty = difficulty;
+    }
+    if (type) {
+      filters.article_type = type;
+    }
+
+    const foundArticles = await Article.find(filters);
 
     res.status(200).json(foundArticles);
   } catch (err) {
     res.status(400).json({ message: err.message });
   }
 });
+
 
 router.get('/all', async (req, res) => {
   try {
