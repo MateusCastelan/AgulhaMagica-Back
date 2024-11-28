@@ -27,6 +27,7 @@ const usersSchema = new mongoose.Schema({
   author_occupation: String,
   author_pinterest: String,
   author_bio: String,
+  author_pic: String,
 });
 
 const User = mongoose.model('User', usersSchema);
@@ -73,6 +74,7 @@ router.post('/login', async (req, res) => {
           author_occupation: user.author_occupation,
           author_pinterest: user.author_pinterest,
           author_bio: user.author_bio,
+          author_pic: user.author_pic,
         };
         res.status(200).json({ message: 'Login bem sucecido!'})
       } 
