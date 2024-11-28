@@ -21,7 +21,12 @@ const usersSchema = new mongoose.Schema({
   author_pwd: String,
   author_level: String,
   author_status: Boolean,
-  author_create_date: { type: Date, default: Date.now }
+  author_create_date: { type: Date, default: Date.now },
+  author_address: String,
+  author_instagram: String,
+  author_occupation: String,
+  author_pinterest: String,
+  author_bio: String,
 });
 
 const User = mongoose.model('User', usersSchema);
@@ -60,8 +65,14 @@ router.post('/login', async (req, res) => {
         req.session.user = {
           _id: user._id,
           author_name: user.author_name,
+          author_user: user.author_user,
           author_email: user.author_email,
-          author_level: user.author_level
+          author_level: user.author_level,
+          author_address: user.author_address,
+          author_instagram: user.author_instagram,
+          author_occupation: user.author_occupation,
+          author_pinterest: user.author_pinterest,
+          author_bio: user.author_bio,
         };
         res.status(200).json({ message: 'Login bem sucecido!'})
       } 
