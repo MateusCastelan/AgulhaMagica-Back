@@ -28,6 +28,7 @@ const usersSchema = new mongoose.Schema({
   author_pinterest: String,
   author_bio: String,
   author_pic: String,
+  likedArticles: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Article' }]
 });
 
 const User = mongoose.model('User', usersSchema);
@@ -169,7 +170,65 @@ router.delete('/:pid', async (req, res) => {
   }
 });
 
+router.post('/likeArticle/:articleId', async (req, res) => {
+  const userId = req.session.user?._id; // Assume the user is logged in and their ID is stored in the session
+  const articleId = req.params.articleId;
 
+  if (!userId) {
+    return res.status(401).json({ message: 'Usuário não autenticado.' });
+  }
+
+  try {
+    // Update user's liked articles
+    const user = await User.findById(userId);
+
+    if (!user) {
+      return res.status(404).json({ message: 'Usuário não encontrado.' });
+    }
+
+    if (!user.likedArticles.includes(articleId)) {
+      user.likedArticles.push(articleId);
+      await user.save();
+    } else {
+      return res.status(400).json({ message: 'Artigo já está na lista de likes.' });
+    }
+
+    res.status(200).json({
+      message: 'Artigo adicionado aos likes com sucesso!',
+      likedArticles: user.likedArticles,
+      // updatedArticle,
+    });
+  } catch (err) {
+    console.error('Erro ao adicionar artigo aos likes:', err);
+    res.status(500).json({ message: 'Erro no servidor.', error: err.message });
+  }
+});
+
+router.post('/unlikeArticle/:articleId', async (req, res) => {
+  const userId = req.session.user?._id;
+  const articleId = req.params.articleId;
+
+  if (!userId) {
+    return res.status(401).json({ message: 'Usuário não autenticado.' });
+  }
+
+  try {
+    const user = await User.findByIdAndUpdate(
+      userId,
+      { $pull: { likedArticles: articleId } },
+      { new: true }
+    );
+
+
+    res.status(200).json({
+      message: 'Artigo removido dos likes com sucesso!',
+      likedArticles: user.likedArticles,
+    });
+  } catch (err) {
+    console.error('Erro ao remover artigo dos likes:', err);
+    res.status(500).json({ message: 'Erro no servidor.', error: err.message });
+  }
+});
 
 
 module.exports = router;
