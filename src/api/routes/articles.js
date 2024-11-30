@@ -132,6 +132,13 @@ router.put('/:pid', async (req, res) => {
   const pid = req.params.pid;
   const newArticle = req.body;
 
+  if (newArticle.article_difficulty) {
+    newArticle.article_difficulty = newArticle.article_difficulty.charAt(0).toUpperCase() + newArticle.article_difficulty.slice(1).toLowerCase();
+  }
+  if (newArticle.article_type) {
+    newArticle.article_type = newArticle.article_type.charAt(0).toUpperCase() + newArticle.article_type.slice(1).toLowerCase();
+  }
+
   try {
     const updatedArticle = await Article.findByIdAndUpdate(
       pid,
@@ -148,9 +155,9 @@ router.put('/:pid', async (req, res) => {
         article_fonte: newArticle.article_fonte,
         article_difficulty: newArticle.article_difficulty,
         article_type: newArticle.article_type,
-        article_featured: newArticle.article_featured, // Optional: Ensure this exists in your schema
+        article_featured: newArticle.article_featured, 
       },
-      { new: true } // Return the updated document
+      { new: true } 
     );
 
     if (!updatedArticle) {
