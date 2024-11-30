@@ -131,21 +131,37 @@ router.get('/:pid', async (req, res) => {
 router.put('/:pid', async (req, res) => {
   const pid = req.params.pid;
   const newArticle = req.body;
-  console.log(newArticle);
+
   try {
-    const updatedArticle = await Article.findByIdAndUpdate(pid,
+    const updatedArticle = await Article.findByIdAndUpdate(
+      pid,
       {
         article_title: newArticle.article_title,
         article_body: newArticle.article_body,
         article_keywords: newArticle.article_keywords,
-        article_published: newArticle.article_published,
-        article_featured: newArticle.article_featured,
+        article_summary: newArticle.article_summary,
+        article_materials: newArticle.article_materials,
+        article_img: newArticle.article_img,
         article_author_email: newArticle.article_author_email,
-      }, { new: true });
-    console.log('Objeto Atualizado:', updatedArticle);
+        article_author_name: newArticle.article_author_name,
+        article_real_author_name: newArticle.article_real_author_name,
+        article_fonte: newArticle.article_fonte,
+        article_difficulty: newArticle.article_difficulty,
+        article_type: newArticle.article_type,
+        article_featured: newArticle.article_featured, // Optional: Ensure this exists in your schema
+      },
+      { new: true } // Return the updated document
+    );
+
+    if (!updatedArticle) {
+      return res.status(404).json({ message: 'Artigo não encontrado!' });
+    }
+
+    console.log('Artigo Atualizado:', updatedArticle);
     res.json({ message: 'Artigo alterado com sucesso!', updatedArticle });
   } catch (err) {
-    res.status(400).json({ message: err.message });
+    console.error('Erro ao atualizar artigo:', err.message);
+    res.status(400).json({ message: 'Erro ao atualizar artigo.', error: err.message });
   }
 });
 

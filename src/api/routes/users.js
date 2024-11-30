@@ -136,26 +136,42 @@ router.get('/:pid', async (req, res) => {
 router.put('/:pid', async (req, res) => {
   const pid = req.params.pid;
   const newUser = req.body;
-  console.log(newUser);
-
-  if (newUser.author_pwd) {
-    const hashedPassword = await bcrypt.hash(newUser.author_pwd, 10);
-    newUser.author_pwd = hashedPassword;
-  }
 
   try {
-    const updatedUser = await User.findByIdAndUpdate(pid, 
-      { 
-        author_name: newUser.author_name, 
+    // Hash password if it's provided in the update
+    if (newUser.author_pwd) {
+      newUser.author_pwd = await bcrypt.hash(newUser.author_pwd, 10);
+    }
+
+    // Update all fields dynamically while excluding undefined
+    const updatedUser = await User.findByIdAndUpdate(
+      pid,
+      {
+        author_name: newUser.author_name,
         author_email: newUser.author_email,
+        author_user: newUser.author_user,
         author_pwd: newUser.author_pwd,
         author_level: newUser.author_level,
         author_status: newUser.author_status,
-      }, { new: true });
-    console.log('Objeto Atualizado:', updatedUser);
+        author_address: newUser.author_address,
+        author_instagram: newUser.author_instagram,
+        author_pinterest: newUser.author_pinterest,
+        author_occupation: newUser.author_occupation,
+        author_bio: newUser.author_bio,
+        author_pic: newUser.author_pic,
+      },
+      { new: true }
+    );
+
+    if (!updatedUser) {
+      return res.status(404).json({ message: 'Usuário não encontrado!' });
+    }
+
+    console.log('Usuário atualizado com sucesso:', updatedUser);
     res.json({ message: 'Usuário alterado com sucesso!', updatedUser });
   } catch (err) {
-    res.status(400).json({ message: err.message });
+    console.error('Erro ao atualizar usuário:', err.message);
+    res.status(400).json({ message: 'Erro ao atualizar usuário.', error: err.message });
   }
 });
 
